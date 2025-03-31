@@ -1,35 +1,41 @@
 package com.example.androidpracticesapp.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.androidpracticesapp.remote.AnimeApiService
+import com.example.androidpracticesapp.repository.AnimeRepositoryImpl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import com.example.androidpracticesapp.data.model.Anime
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
+sealed class AnimeListState {
+    data object Loading : AnimeListState()
+    data class Success(val animeList: List<Anime>) : AnimeListState()
+    data class Error(val message: String) : AnimeListState()
+}
 
 class AnimeListViewModel : ViewModel() {
 
-    private val _animeList = MutableStateFlow<List<Anime>>(emptyList())
-    val animeList: StateFlow<List<Anime>> = _animeList.asStateFlow()
+    private val _state = MutableStateFlow<AnimeListState>(AnimeListState.Loading)
+    val state: StateFlow<AnimeListState> = _state.asStateFlow()
+
+    private val repository = AnimeRepositoryImpl(AnimeApiService.create())
 
     init {
-        _animeList.value = listOf(
-            Anime(
-                id = 4657,
-                title = "Lesson XX",
-                type = "OAV",
-                plotSummary = "" +
-                        "The story of Lesson XX has a sweet feel to it. " +
-                        "It revolves around two boys, " +
-                        "Shizuka and Sakura who are friends at a coed boarding school. " +
-                        "One day, Shizuka notices Sakura’s beauty " +
-                        "when he dives in to take a hit from a baseball. " +
-                        "After some mixed up thoughts, he jokes about kissing him, " +
-                        "but Sakura insists on a kiss under the starry sky. " +
-                        "Afterwards, Shizuka thinks it’s best for them to be apart " +
-                        "to sort out their thoughts and feelings. " +
-                        "A classic shounen ai/yaoi with love, misunderstanding, violence and a sweet end." +
-                        ""
-            )
-        )
+        fetchAnimeList()
+    }
+
+    private fun fetchAnimeList() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val animeList = repository.getAnimeList()
+                _state.value = AnimeListState.Success(animeList)
+            } catch (e: Exception) {
+                _state.value = AnimeListState.Error(e.localizedMessage ?: "Ошибка загрузки данных")
+            }
+        }
     }
 }
