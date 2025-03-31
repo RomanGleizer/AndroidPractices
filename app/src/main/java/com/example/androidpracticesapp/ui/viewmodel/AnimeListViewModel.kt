@@ -11,12 +11,18 @@ import com.example.androidpracticesapp.data.model.Anime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+/**
+ * Состояния загрузки данных для списка аниме
+ */
 sealed class AnimeListState {
     data object Loading : AnimeListState()
     data class Success(val animeList: List<Anime>) : AnimeListState()
     data class Error(val message: String) : AnimeListState()
 }
 
+/**
+ * ViewModel для экрана списка аниме
+ */
 class AnimeListViewModel : ViewModel() {
 
     private val _state = MutableStateFlow<AnimeListState>(AnimeListState.Loading)

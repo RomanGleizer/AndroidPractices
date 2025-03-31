@@ -11,12 +11,18 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+/**
+ * Состояния загрузки данных для экрана деталей аниме
+ */
 sealed class AnimeDetailsState {
     data object Loading : AnimeDetailsState()
     data class Success(val anime: Anime) : AnimeDetailsState()
     data class Error(val message: String) : AnimeDetailsState()
 }
 
+/**
+ * ViewModel для экрана деталей аниме
+ */
 class AnimeDetailsViewModel(private val animeId: Int) : ViewModel() {
 
     private val _state = MutableStateFlow<AnimeDetailsState>(AnimeDetailsState.Loading)

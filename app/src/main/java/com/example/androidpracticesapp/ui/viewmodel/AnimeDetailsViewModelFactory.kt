@@ -3,6 +3,9 @@ package com.example.androidpracticesapp.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 
+/**
+ * Фабрика для создания [AnimeDetailsViewModel]
+ */
 class AnimeDetailsViewModelFactory(private val animeId: Int) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(AnimeDetailsViewModel::class.java)) {

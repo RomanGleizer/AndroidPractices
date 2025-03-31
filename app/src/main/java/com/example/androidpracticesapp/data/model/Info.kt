@@ -4,6 +4,9 @@ import org.simpleframework.xml.Attribute
 import org.simpleframework.xml.Root
 import org.simpleframework.xml.Text
 
+/**
+ * Модель для элемента информации об аниме (<info>)
+ */
 @Root(name = "info", strict = false)
 data class Info(
     @field:Attribute(name = "type", required = false)
