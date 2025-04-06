@@ -6,7 +6,9 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -25,6 +27,9 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
+    val context = LocalContext.current
+    val filterRepository = remember { FilterRepository(context) }
+
     Scaffold(
         bottomBar = { BottomNavigationBar(navController) }
     ) { innerPadding ->
@@ -35,6 +40,12 @@ fun MainScreen() {
         ) {
             composable("list") {
                 AnimeListScreen(navController)
+            }
+            composable("filter") {
+                FilterScreen(
+                    filterRepository = filterRepository,
+                    onFiltersApplied = { navController.popBackStack() }
+                )
             }
             composable(
                 route = "details/{animeId}",

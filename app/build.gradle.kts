@@ -61,6 +61,12 @@ dependencies {
     implementation(libs.material3)
     implementation(libs.androidx.navigation.compose.v253)
     implementation(libs.androidx.constraintlayout.compose.v101)
+    implementation(libs.androidx.datastore.preferences.core)
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.foundation.android)
+    implementation(libs.androidx.room.common)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.material.icons.extended)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
