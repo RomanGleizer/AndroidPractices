@@ -1,4 +1,4 @@
-package com.example.androidpracticesapp
+package com.example.androidpracticesapp.remote
 
 import androidx.datastore.preferences.core.stringPreferencesKey
 

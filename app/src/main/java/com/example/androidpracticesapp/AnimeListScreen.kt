@@ -15,6 +15,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.androidpracticesapp.repository.FilterRepository
+import com.example.androidpracticesapp.repository.FilterSettings
 import com.example.androidpracticesapp.ui.viewmodel.AnimeListState
 import com.example.androidpracticesapp.ui.viewmodel.AnimeListViewModel
 import kotlinx.coroutines.launch

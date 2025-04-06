@@ -5,7 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.androidpracticesapp.remote.AnimeApiService
 import com.example.androidpracticesapp.repository.AnimeRepositoryImpl
-import com.example.androidpracticesapp.FilterRepository
+import com.example.androidpracticesapp.repository.FilterRepository
 import com.example.androidpracticesapp.data.model.Anime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -12,15 +12,18 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.androidpracticesapp.ui.viewmodel.AnimeDetailsState
 import com.example.androidpracticesapp.ui.viewmodel.AnimeDetailsViewModel
 import com.example.androidpracticesapp.ui.viewmodel.AnimeDetailsViewModelFactory
+import com.example.androidpracticesapp.ui.viewmodel.FavoriteViewModel
 
 @Composable
 fun AnimeDetailsScreen(animeId: Int) {
     val owner = LocalViewModelStoreOwner.current
-    val viewModel: AnimeDetailsViewModel = viewModel(
+    val detailsViewModel: AnimeDetailsViewModel = viewModel(
         viewModelStoreOwner = owner!!,
         factory = AnimeDetailsViewModelFactory(animeId)
     )
-    val state by viewModel.state.collectAsState()
+    val favoriteViewModel: FavoriteViewModel = viewModel()
+    val state by detailsViewModel.state.collectAsState()
+    val favorites by favoriteViewModel.favoritesFlow.collectAsState(initial = emptyList())
 
     when (state) {
         is AnimeDetailsState.Loading -> {
@@ -31,7 +34,6 @@ fun AnimeDetailsScreen(animeId: Int) {
                 CircularProgressIndicator()
             }
         }
-
         is AnimeDetailsState.Error -> {
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -43,42 +45,64 @@ fun AnimeDetailsScreen(animeId: Int) {
                 )
             }
         }
-
         is AnimeDetailsState.Success -> {
             val anime = (state as AnimeDetailsState.Success).anime
-            ConstraintLayout(
+            val isFavorite = favorites.any { it.id == anime.id }
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
-                val (titleRef, typeRef, plotRef) = createRefs()
-                Text(
-                    text = anime.title,
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.constrainAs(titleRef) {
-                        top.linkTo(parent.top)
-                        start.linkTo(parent.start)
-                    }
-                )
-                if (!anime.type.isNullOrEmpty()) {
+                ConstraintLayout(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                ) {
+                    val (titleRef, typeRef, plotRef) = createRefs()
                     Text(
-                        text = "Type: ${anime.type}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.constrainAs(typeRef) {
-                            top.linkTo(titleRef.bottom, margin = 8.dp)
+                        text = anime.title,
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.constrainAs(titleRef) {
+                            top.linkTo(parent.top)
                             start.linkTo(parent.start)
                         }
                     )
-                }
-                Text(
-                    text = anime.plotSummary,
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.constrainAs(plotRef) {
-                        top.linkTo(typeRef.bottom, margin = 16.dp)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
+                    if (!anime.type.isNullOrEmpty()) {
+                        Text(
+                            text = "Type: ${anime.type}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.constrainAs(typeRef) {
+                                top.linkTo(titleRef.bottom, margin = 8.dp)
+                                start.linkTo(parent.start)
+                            }
+                        )
                     }
-                )
+                    Text(
+                        text = anime.plotSummary,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.constrainAs(plotRef) {
+                            top.linkTo(typeRef.bottom, margin = 16.dp)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                        }
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                if (isFavorite) {
+                    Button(
+                        onClick = { favoriteViewModel.removeFavorite(anime) },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Удалить из избранного")
+                    }
+                } else {
+                    Button(
+                        onClick = { favoriteViewModel.addFavorite(anime) },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Добавить в избранное")
+                    }
+                }
             }
         }
     }

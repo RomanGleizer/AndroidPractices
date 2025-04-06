@@ -1,8 +1,9 @@
-package com.example.androidpracticesapp
+package com.example.androidpracticesapp.repository
 
 import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
+import com.example.androidpracticesapp.remote.FilterPreferences
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

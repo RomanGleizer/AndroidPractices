@@ -14,13 +14,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.androidpracticesapp.repository.FilterRepository
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            MainScreen()
-        }
+        setContent { MainScreen() }
     }
 }
 
@@ -41,12 +40,14 @@ fun MainScreen() {
             composable("list") {
                 AnimeListScreen(navController, filterRepository)
             }
-
             composable("filter") {
                 FilterScreen(
                     filterRepository = filterRepository,
                     onFiltersApplied = { navController.popBackStack() }
                 )
+            }
+            composable("favorites") {
+                FavoriteScreen(navController)
             }
             composable(
                 route = "details/{animeId}",
