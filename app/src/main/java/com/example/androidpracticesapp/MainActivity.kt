@@ -39,8 +39,9 @@ fun MainScreen() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable("list") {
-                AnimeListScreen(navController)
+                AnimeListScreen(navController, filterRepository)
             }
+
             composable("filter") {
                 FilterScreen(
                     filterRepository = filterRepository,

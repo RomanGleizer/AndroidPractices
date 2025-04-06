@@ -18,7 +18,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -30,7 +29,13 @@ fun FilterScreen(
 ) {
     var searchQuery by remember { mutableStateOf("") }
     var selectedType by remember { mutableStateOf("") }
+    var selectedGenre by remember { mutableStateOf("") }
+
     val types = listOf("TV", "OAV")
+    val genres = listOf("comedy", "horror", "mystery", "supernatural")
+
+    var typeExpanded by remember { mutableStateOf(false) }
+    var genreExpanded by remember { mutableStateOf(false) }
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -50,28 +55,58 @@ fun FilterScreen(
         )
         Spacer(modifier = Modifier.height(8.dp))
 
+        Button(
+            onClick = { typeExpanded = true },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(text = if (selectedType.isEmpty()) "Выберите тип" else "Тип: $selectedType")
+        }
         DropdownMenu(
-            expanded = true,
-            onDismissRequest = { }
+            expanded = typeExpanded,
+            onDismissRequest = { typeExpanded = false }
         ) {
             types.forEach { type ->
                 DropdownMenuItem(
                     text = { Text(type) },
-                    onClick = { selectedType = type }
+                    onClick = {
+                        selectedType = type
+                        typeExpanded = false
+                    }
                 )
             }
         }
-        Text(text = "Выбранный тип: $selectedType")
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Button(
+            onClick = { genreExpanded = true },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(text = if (selectedGenre.isEmpty()) "Выберите жанр" else "Жанр: $selectedGenre")
+        }
+        DropdownMenu(
+            expanded = genreExpanded,
+            onDismissRequest = { genreExpanded = false }
+        ) {
+            genres.forEach { genre ->
+                DropdownMenuItem(
+                    text = { Text(genre) },
+                    onClick = {
+                        selectedGenre = genre
+                        genreExpanded = false
+                    }
+                )
+            }
+        }
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = {
                 coroutineScope.launch {
-                    filterRepository.saveFilters(searchQuery, selectedType)
+                    filterRepository.saveFilters(searchQuery, selectedType, selectedGenre)
                     onFiltersApplied()
                 }
             },
-            modifier = Modifier.align(Alignment.End)
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text("Готово")
         }

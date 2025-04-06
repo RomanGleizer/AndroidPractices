@@ -19,29 +19,34 @@ sealed class AnimeListState {
     data class Error(val message: String) : AnimeListState()
 }
 
-class AnimeListViewModel(application: Application) : AndroidViewModel(application) {
+class AnimeListViewModel(
+    application: Application,
+    private val filterRepository: FilterRepository
+) : AndroidViewModel(application) {
 
-    private val filterRepository = FilterRepository(application.applicationContext)
     private val repository = AnimeRepositoryImpl(AnimeApiService.create())
-
     private val _state = MutableStateFlow<AnimeListState>(AnimeListState.Loading)
     val state: StateFlow<AnimeListState> = _state.asStateFlow()
 
     init {
         viewModelScope.launch {
-            filterRepository.filtersFlow.collect { (query, type) ->
-                fetchAnimeList(query, type)
+            filterRepository.filtersFlow.collect { filterSettings ->
+                fetchAnimeList(filterSettings.query, filterSettings.type, filterSettings.genre)
             }
         }
     }
 
-    private fun fetchAnimeList(query: String, type: String) {
+    private fun fetchAnimeList(query: String, type: String, genre: String) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val animeList = repository.getAnimeList()
                 val filteredList = animeList.filter { anime ->
                     (query.isBlank() || anime.title.contains(query, ignoreCase = true)) &&
-                            (type.isBlank() || anime.type == type)
+                            (type.isBlank() || anime.type == type) &&
+                            (genre.isBlank() || anime.info.any {
+                                it.type.equals("Genres", ignoreCase = true) &&
+                                        it.text.contains(genre, ignoreCase = true)
+                            })
                 }
                 _state.value = AnimeListState.Success(filteredList)
             } catch (e: Exception) {
