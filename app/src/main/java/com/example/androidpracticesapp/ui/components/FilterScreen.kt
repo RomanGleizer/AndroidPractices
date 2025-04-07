@@ -21,23 +21,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.androidpracticesapp.repository.FilterRepository
+import com.example.androidpracticesapp.cache.FilterBadgeCache
 import kotlinx.coroutines.launch
 
 @Composable
 fun FilterScreen(
-    filterRepository: FilterRepository,
-    onFiltersApplied: () -> Unit
+    filterRepository: FilterRepository, onFiltersApplied: () -> Unit, badgeCache: FilterBadgeCache
 ) {
     var searchQuery by remember { mutableStateOf("") }
     var selectedType by remember { mutableStateOf("") }
     var selectedGenre by remember { mutableStateOf("") }
-
     val types = listOf("TV", "OAV")
     val genres = listOf("comedy", "horror", "mystery", "supernatural")
-
     var typeExpanded by remember { mutableStateOf(false) }
     var genreExpanded by remember { mutableStateOf(false) }
-
     val coroutineScope = rememberCoroutineScope()
 
     Column(
@@ -47,7 +44,6 @@ fun FilterScreen(
     ) {
         Text(text = "Настройки фильтрации", style = MaterialTheme.typography.titleLarge)
         Spacer(modifier = Modifier.height(16.dp))
-
         OutlinedTextField(
             value = searchQuery,
             onValueChange = { searchQuery = it },
@@ -55,59 +51,43 @@ fun FilterScreen(
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
-
         Button(
-            onClick = { typeExpanded = true },
-            modifier = Modifier.fillMaxWidth()
+            onClick = { typeExpanded = true }, modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = if (selectedType.isEmpty()) "Выберите тип" else "Тип: $selectedType")
         }
-        DropdownMenu(
-            expanded = typeExpanded,
-            onDismissRequest = { typeExpanded = false }
-        ) {
+        DropdownMenu(expanded = typeExpanded, onDismissRequest = { typeExpanded = false }) {
             types.forEach { type ->
-                DropdownMenuItem(
-                    text = { Text(type) },
-                    onClick = {
-                        selectedType = type
-                        typeExpanded = false
-                    }
-                )
+                DropdownMenuItem(text = { Text(type) }, onClick = {
+                    selectedType = type
+                    typeExpanded = false
+                })
             }
         }
         Spacer(modifier = Modifier.height(8.dp))
-
         Button(
-            onClick = { genreExpanded = true },
-            modifier = Modifier.fillMaxWidth()
+            onClick = { genreExpanded = true }, modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = if (selectedGenre.isEmpty()) "Выберите жанр" else "Жанр: $selectedGenre")
         }
-        DropdownMenu(
-            expanded = genreExpanded,
-            onDismissRequest = { genreExpanded = false }
-        ) {
+        DropdownMenu(expanded = genreExpanded, onDismissRequest = { genreExpanded = false }) {
             genres.forEach { genre ->
-                DropdownMenuItem(
-                    text = { Text(genre) },
-                    onClick = {
-                        selectedGenre = genre
-                        genreExpanded = false
-                    }
-                )
+                DropdownMenuItem(text = { Text(genre) }, onClick = {
+                    selectedGenre = genre
+                    genreExpanded = false
+                })
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
-
         Button(
             onClick = {
                 coroutineScope.launch {
                     filterRepository.saveFilters(searchQuery, selectedType, selectedGenre)
+                    badgeCache.shouldShowBadge =
+                        searchQuery.isNotBlank() || selectedType.isNotBlank() || selectedGenre.isNotBlank()
                     onFiltersApplied()
                 }
-            },
-            modifier = Modifier.fillMaxWidth()
+            }, modifier = Modifier.fillMaxWidth()
         ) {
             Text("Готово")
         }

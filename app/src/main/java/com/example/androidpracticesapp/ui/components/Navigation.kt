@@ -1,4 +1,4 @@
-package com.example.androidpracticesapp
+package com.example.androidpracticesapp.ui.components
 
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar

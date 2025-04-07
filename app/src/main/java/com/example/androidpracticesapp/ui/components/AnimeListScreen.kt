@@ -1,4 +1,4 @@
-package com.example.androidpracticesapp
+package com.example.androidpracticesapp.ui.components
 
 import android.app.Application
 import androidx.compose.foundation.clickable
@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.androidpracticesapp.cache.FilterBadgeCache
 import com.example.androidpracticesapp.repository.FilterRepository
 import com.example.androidpracticesapp.repository.FilterSettings
 import com.example.androidpracticesapp.ui.viewmodel.AnimeListState
@@ -38,6 +39,7 @@ class AnimeListViewModelFactory(
 fun AnimeListScreen(
     navController: NavController,
     filterRepository: FilterRepository,
+    badgeCache: FilterBadgeCache,
     viewModel: AnimeListViewModel = viewModel(
         factory = AnimeListViewModelFactory(
             LocalContext.current.applicationContext as Application,
@@ -48,15 +50,30 @@ fun AnimeListScreen(
     val currentFilters by filterRepository.filtersFlow.collectAsState(
         initial = FilterSettings("", "", "")
     )
-    val coroutineScope = rememberCoroutineScope()
     val state by viewModel.state.collectAsState()
 
+    LaunchedEffect(currentFilters) {
+        badgeCache.shouldShowBadge =
+            currentFilters.query.isNotBlank() ||
+                    currentFilters.type.isNotBlank() ||
+                    currentFilters.genre.isNotBlank()
+    }
+
     Column(modifier = Modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            contentAlignment = Alignment.TopEnd
+        ) {
+            FilterBadge(shouldShowBadge = badgeCache.shouldShowBadge)
+        }
+
         if (currentFilters.query.isNotBlank() || currentFilters.type.isNotBlank() || currentFilters.genre.isNotBlank()) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp),
+                    .padding(horizontal = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -68,9 +85,11 @@ fun AnimeListScreen(
                     ).joinToString(", "),
                     style = MaterialTheme.typography.bodyMedium
                 )
+                val coroutineScope = rememberCoroutineScope()
                 Button(onClick = {
                     coroutineScope.launch {
                         filterRepository.saveFilters("", "", "")
+                        badgeCache.shouldShowBadge = false
                     }
                 }) {
                     Text("Сбросить")
@@ -138,3 +157,4 @@ fun AnimeListScreen(
         }
     }
 }
+
